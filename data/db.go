@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/dstpierre/gosaas/model"
+	"github.com/jlb922/gosaas/model"
 )
 
 // DB is a database agnostic abstraction that contains a reference to
@@ -27,7 +27,9 @@ type DB struct {
 
 // UserServices is an interface that contians all functions related to account, user and billing.
 type UserServices interface {
-	SignUp(email, password string) (*model.Account, error)
+	SignUp(email, password, first, last string) (*model.Account, error)
+	StoreTempPassword(id int64, email, password string) error
+	UpdateLastLogin(id int64) error
 	ChangePassword(id, accountID int64, passwd string) error
 	AddToken(accountID, userID int64, name string) (*model.AccessToken, error)
 	RemoveToken(accountID, userID, tokenID int64) error

@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// TaskID are IDs representing a specific queued task.
+// TaskID are IDs representing a specific queued task. Each application task has an associated ID
 type TaskID int
 
 const (
@@ -31,6 +31,9 @@ type TaskExecutor interface {
 	Run(t QueueTask) error
 }
 
+// Since we’re wrapping a struct inside a QueueTask as an interface, they’re serialized
+// as a map[string]interface{}. We need a way to convert that map back
+// to the original struct. setField and fillStructs do that
 func setField(obj interface{}, name string, value interface{}) error {
 	structValue := reflect.ValueOf(obj).Elem()
 	structFieldValue := structValue.FieldByName(name)
@@ -54,6 +57,9 @@ func setField(obj interface{}, name string, value interface{}) error {
 	return nil
 }
 
+// fillStruct receives a pointer to a structure to be filled from the map.
+// Each entry in the map calls setField() to set the value of that field in
+// the structure
 func fillStruct(s interface{}, m map[string]interface{}) error {
 	for k, v := range m {
 		err := setField(s, k, v)

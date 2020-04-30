@@ -2,7 +2,7 @@
 	<img src="https://buildsaasappingo.com/public/basaig.jpg" alt="Build a SaaS app in Go" align="right" height="250" />
 </a>
 
-# gosaas [![Documentation](https://godoc.org/github.com/dstpierre/gosaas?status.svg)](http://godoc.org/github.com/dstpierre/gosaas) [![CircleCI](https://circleci.com/gh/dstpierre/gosaas.svg?style=svg)](https://circleci.com/gh/dstpierre/gosaas) [![Go Report Card](https://goreportcard.com/badge/github.com/dstpierre/gosaas?v=1)](https://goreportcard.com/report/github.com/dstpierre/gosaas?v=1) [![Maintainability](https://api.codeclimate.com/v1/badges/8e206ab6fd0798a483a0/maintainability)](https://codeclimate.com/github/dstpierre/gosaas/maintainability)
+# gosaas [![Documentation](https://godoc.org/github.com/jlb922/gosaas?status.svg)](http://godoc.org/github.com/jlb922/gosaas) [![CircleCI](https://circleci.com/gh/jlb922/gosaas.svg?style=svg)](https://circleci.com/gh/jlb922/gosaas) [![Go Report Card](https://goreportcard.com/badge/github.com/jlb922/gosaas?v=1)](https://goreportcard.com/report/github.com/jlb922/gosaas?v=1) [![Maintainability](https://api.codeclimate.com/v1/badges/8e206ab6fd0798a483a0/maintainability)](https://codeclimate.com/github/jlb922/gosaas/maintainability)
 
 In September 2018 I published a book named [Build a SaaS app in Go](https://buildsaasappingo.com/). This project is the transformation of what the book teaches into a library that can be used to quickly build a web app / SaaS and focusing on your core product instead of common SaaS components.
 
@@ -19,8 +19,8 @@ package main
 
 import (
 	"net/http"
-	"github.com/dstpierre/gosaas"
-	"github.com/dstpierre/gosaas/model"
+	"github.com/jlb922/gosaas"
+	"github.com/jlb922/gosaas/model"
 )
 
 func main() {
@@ -70,7 +70,7 @@ $> curl http://localhost:8080/test
 
 ## Installation
 
-`go get github.com/dstpierre/gosaas`
+`go get github.com/jlb922/gosaas`
 
 ## What's included
 
@@ -349,4 +349,4 @@ Thanks to the following packages:
 
 ## Licence
 
-[MIT](https://github.com/dstpierre/gosaas/blob/master/LICENSE)
+[MIT](https://github.com/jlb922/gosaas/blob/master/LICENSE)

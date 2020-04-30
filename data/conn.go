@@ -3,7 +3,7 @@ package data
 import (
 	"database/sql"
 
-	"github.com/dstpierre/gosaas/data/postgres"
+	"github.com/jlb922/gosaas/data/postgres"
 	_ "github.com/lib/pq"
 )
 

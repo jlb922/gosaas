@@ -10,9 +10,12 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"strconv"
+	"strings"
+	"time"
 
-	"github.com/dstpierre/gosaas/model"
+	"github.com/jlb922/gosaas/model"
 )
 
 var (
@@ -21,24 +24,44 @@ var (
 )
 
 func init() {
-	loadTemplates()
+	LoadTemplates()
 	loadLanguagePacks()
 }
 
-func loadTemplates() {
+// LoadTemplates reads templates into memory
+func LoadTemplates() {
 	var tmpl []string
 
-	files, err := ioutil.ReadDir("./templates")
+	// Experimental code
+	err := filepath.Walk("./templates",
+		func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			//fmt.Println(path, info.Name())
+			if !info.IsDir() {
+				tmpl = append(tmpl, path)
+			}
+			return nil
+		})
 	if err != nil {
-		if os.IsNotExist(err) == false {
-			log.Fatal("unable to load templates", err)
-		}
-		return
+		log.Println(err)
 	}
 
-	for _, f := range files {
-		tmpl = append(tmpl, path.Join("./templates", f.Name()))
-	}
+	// read template directory
+	//files, err := ioutil.ReadDir("./templates")
+	//if err != nil {
+	//	if os.IsNotExist(err) == false {
+	//		log.Fatal("unable to load templates", err)
+	//	}
+	//	return
+	//}
+
+	//for _, f := range files {
+	//	if !f.IsDir() {
+	//		tmpl = append(tmpl, path.Join("./templates", f.Name()))
+	//	}
+	//}
 
 	t, err := template.New("").Funcs(template.FuncMap{
 		"translate":  Translate,
@@ -47,8 +70,8 @@ func loadTemplates() {
 			m := float64(amount) / 100.0
 			return fmt.Sprintf("%.2f $", m)
 		},
+		//	}).ParseFiles(tmpl...)
 	}).ParseFiles(tmpl...)
-
 	if err != nil {
 		log.Fatal("error while parsing templates", err)
 	}
@@ -67,6 +90,7 @@ func loadTemplates() {
 // 		gosaas.ServePage(w, r, "index.html", data)
 // 	}
 func ServePage(w http.ResponseWriter, r *http.Request, name string, data interface{}) {
+
 	t := pageTemplates.Lookup(name)
 
 	if err := t.Execute(w, data); err != nil {
@@ -138,7 +162,7 @@ func Translatef(lng, key string, a ...interface{}) string {
 	return fmt.Sprintf("key %s not found", key)
 }
 
-// BUG(dom): This needs more thinking...
+// ExtractLimitAndOffset BUG(dom): This needs more thinking...
 func ExtractLimitAndOffset(r *http.Request) (limit int, offset int) {
 	limit = 50
 	offset = 0
@@ -176,11 +200,14 @@ type ViewData struct {
 
 // Notification can be used to display alert to the user in an HTML template.
 type Notification struct {
-	Title     template.HTML
-	Message   template.HTML
+	//Title     template.HTML
+	//Message   template.HTML
+	Title     string
+	Message   string
 	IsSuccess bool
 	IsError   bool
 	IsWarning bool
+	IsInfo    bool
 }
 
 func getLanguage(ctx context.Context) string {
@@ -208,4 +235,64 @@ func CreateViewData(ctx context.Context, alert *Notification, data interface{}) 
 		Language: getLanguage(ctx),
 		Role:     getRole(ctx),
 	}
+}
+
+// TokenizeNotificationCookie takes a Notification struct and eturns a string with pipe separated alert valuee.
+func TokenizeNotificationCookie(alert Notification) string {
+	return fmt.Sprintf("%s|%s|%t|%t|%t|%t", alert.Title, alert.Message, alert.IsInfo, alert.IsSuccess, alert.IsError, alert.IsWarning)
+}
+
+// ParseNotificationCookie Splits a notification string froma cookie back into a Notification Struct
+func ParseNotificationCookie(alertString string) (Notification, error) {
+	var tmpNotif Notification
+	pairs := strings.Split(alertString, "|")
+	if len(pairs) != 6 {
+		return tmpNotif, fmt.Errorf("Too few fields in cookie")
+	}
+	tmpNotif.Title = pairs[0]
+	tmpNotif.Message = pairs[1]
+	tmpNotif.IsInfo, _ = strconv.ParseBool(pairs[2])
+	tmpNotif.IsSuccess, _ = strconv.ParseBool(pairs[3])
+	tmpNotif.IsError, _ = strconv.ParseBool(pairs[4])
+	tmpNotif.IsWarning, _ = strconv.ParseBool(pairs[5])
+	return tmpNotif, nil
+}
+
+// ProcessNotificationCookie will read and untokenize a Notification Cookie
+func ProcessNotificationCookie(w http.ResponseWriter, r *http.Request) (Notification, error) {
+	var alert Notification
+	// fetch the cookie and check for errors
+	ck, err := r.Cookie("FLASH-ALERT")
+	if err != nil {
+		// If it's ErrNoCookie we must continue otherwise this is a legit error
+		if err != http.ErrNoCookie {
+			return alert, err
+		}
+	} else {
+		// unpack the alert
+		alert, err = ParseNotificationCookie(ck.Value)
+
+		// Set an empty cookie so the alert only displays once
+		ck = &http.Cookie{
+			Name:    "FLASH-ALERT",
+			MaxAge:  -1,
+			Expires: time.Unix(1, 0),
+			Value:   "deleteme",
+		}
+		http.SetCookie(w, ck)
+	}
+	return alert, err
+}
+
+// SetNotificationCookie sets a flash notification cookie
+func SetNotificationCookie(w http.ResponseWriter, alert Notification) {
+
+	ck := &http.Cookie{
+		Name:  "FLASH-ALERT",
+		Path:  "/",
+		Value: TokenizeNotificationCookie(alert),
+	}
+
+	// we set the cookie so they will have their authentication token on the next request.
+	http.SetCookie(w, ck)
 }

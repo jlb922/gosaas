@@ -13,6 +13,8 @@ import (
 // NewToken returns a token combining an id with a unique identifier.
 func NewToken(id int64) string {
 	return fmt.Sprintf("%d|%s", id, uuid.NewV4().String())
+	//tok, _ := uuid.NewV4()
+	//return fmt.Sprintf("%d|%s", id, tok.String())
 }
 
 // ParseToken returns the id and uuid for a given token.
@@ -46,6 +48,7 @@ func NewFriendlyID(id int64, key string) string {
 	return fmt.Sprintf("%x", i)
 }
 
+// StringToKey converts a string to an int64
 func StringToKey(s string) int64 {
 	i, err := strconv.ParseInt(s, 10, 64)
 	if err != nil {

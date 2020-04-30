@@ -5,14 +5,42 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dstpierre/gosaas/model"
+	"github.com/jlb922/gosaas/model"
 )
 
 type Users struct {
 	DB *sql.DB
 }
 
-func (u *Users) SignUp(email, password string) (*model.Account, error) {
+// StoreTempPassword stores the email and temp password
+func (u *Users) StoreTempPassword(id int64, email, password string) error {
+	//first delete any existing reset rows
+	_, err := u.DB.Exec(`
+		DELETE FROM gosaas_pwdreset
+		WHERE (id = $1)
+	`, id)
+
+	_, err = u.DB.Exec(`
+		INSERT INTO gosaas_pwdreset(id, email, password)
+		VALUES($1, $2, $3)
+	`, id, email, password)
+	return err
+}
+
+func (u *Users) UpdateLastLogin(id int64) error {
+	t := time.Now()
+	_, err := u.DB.Exec(`
+       UPDATE gosaas_users
+       SET last_login = $1
+       WHERE id = $2`, t, id)
+	if err != nil {
+		fmt.Println("error while uodating last login")
+		return err
+	}
+	return nil
+}
+
+func (u *Users) SignUp(email, password, first, last string) (*model.Account, error) {
 	var accountID int64
 
 	err := u.DB.QueryRow(`
@@ -34,9 +62,9 @@ func (u *Users) SignUp(email, password string) (*model.Account, error) {
 	}
 
 	_, err = u.DB.Exec(`
-		INSERT INTO gosaas_users(account_id, email, password, token, role)
-		VALUES($1, $2, $3, $4, $5)
-	`, accountID, email, password, model.NewToken(accountID), model.RoleAdmin)
+		INSERT INTO gosaas_users(account_id, email, password, token, role, first, last)
+		VALUES($1, $2, $3, $4, $5, $6, $7)
+	`, accountID, email, password, model.NewToken(accountID), model.RoleAdmin, first, last)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +107,8 @@ func (u *Users) GetDetail(id int64) (*model.Account, error) {
 		return nil, err
 	}
 
-	rows, err := u.DB.Query("SELECT * FROM gosaas_users WHERE account_id = $1", id)
+	//rows, err := u.DB.Query("SELECT * FROM gosaas_users WHERE account_id = $1", id)
+	rows, err := u.DB.Query("SELECT id, account_id, first, last, email, password, token, role  FROM gosaas_users WHERE account_id = $1", id)
 	if err != nil {
 		return nil, err
 	}
@@ -103,12 +132,15 @@ func (u *Users) GetDetail(id int64) (*model.Account, error) {
 
 func (u *Users) GetUserByEmail(email string) (*model.User, error) {
 	user := &model.User{}
-	row := u.DB.QueryRow("SELECT * FROM gosaas_users WHERE email = $1", email)
-
+	row := u.DB.QueryRow("SELECT id, account_id, first, last, email, password, token, role  FROM gosaas_users WHERE email = $1", email)
 	if err := u.scanUser(row, user); err != nil {
 		return nil, err
 	}
 	return user, nil
+}
+
+func (u *Users) UserLogin(email string) error {
+	return nil
 }
 
 func (u *Users) GetByStripe(stripeID string) (*model.Account, error) {
@@ -188,12 +220,15 @@ func (u *Users) RemoveToken(accountID, userID, tokenID int64) error {
 }
 
 func (u *Users) scanUser(rows scanner, user *model.User) error {
-
+	//var str *string
 	return rows.Scan(&user.ID,
 		&user.AccountID,
+		&user.First,
+		&user.Last,
 		&user.Email,
 		&user.Password,
 		&user.Token,
 		&user.Role,
+		//&str,
 	)
 }

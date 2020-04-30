@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/dstpierre/gosaas/data"
-	"github.com/dstpierre/gosaas/internal/config"
+	"github.com/jlb922/gosaas/data"
+	"github.com/jlb922/gosaas/internal/config"
 )
 
 func init() {
@@ -75,6 +75,11 @@ func NewServer(routes map[string]*Route) *Server {
 	if _, ok := routes["webhooks"]; !ok {
 		routes["webhooks"] = newWebhook()
 	}
+
+	if _, ok := routes["tools"]; !ok {
+		routes["tools"] = newTool()
+	}
+
 
 	return &Server{
 		Logger:          Logger,

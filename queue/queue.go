@@ -3,6 +3,7 @@ package queue
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -26,13 +27,17 @@ var (
 	executors map[TaskID]TaskExecutor
 )
 
-// New initializes the queue tasks.
+// New initializes the queue tasks; intially called from cache package
 func New(rc *redis.Client, isDev bool, ex map[TaskID]TaskExecutor) {
 	client = rc
 
 	// built-in executor
 	emailer = &Email{}
 	biller = &Billing{}
+
+	// We are adding the emailer variable here and based on the environment flag
+	// we receive from the cache package we assign the correct implementation to our
+	// Send value.
 	if isDev {
 		emailer.Send = emailer.sendEmailDev
 	} else {
@@ -43,7 +48,7 @@ func New(rc *redis.Client, isDev bool, ex map[TaskID]TaskExecutor) {
 }
 
 // SetAsSubscriber makes this instance a Pub/Sub subscriber. Each message queued
-// will be processed by this instance.
+// will be processed by this instance. Creates a subscriber to channel "q"
 func SetAsSubscriber() {
 	scheduler = cron.New()
 
@@ -71,11 +76,14 @@ func SetAsSubscriber() {
 			log.Fatal("redis pub/sub is down")
 			break
 		}
-
+		// process function in its own go routine to improve the speed our queue subscriber can dequeue the task
 		go process(msg)
 	}
 }
 
+// start the Cron executor
+// first try to load the file and parse its content. For each line in the file, we create
+//  the function that will be executed when the correct time is reached.
 func setupCron() {
 	if _, err := os.Stat("tasks.cron"); os.IsNotExist(err) {
 		log.Println("no tasks.cron file found, skipping scheduler setup")
@@ -97,6 +105,7 @@ func setupCron() {
 	for _, line := range lines {
 		exp, url := parseTask(line)
 
+		// line below has been problematic
 		err := scheduler.AddFunc(exp, func() {
 			req, err := http.NewRequest("POST", url, bytes.NewReader(b))
 			if err != nil {
@@ -140,7 +149,7 @@ func Enqueue(id TaskID, data interface{}) error {
 		Data:    data,
 		Created: time.Now(),
 	}
-
+	fmt.Println("Enqueing:", data)
 	b, err := json.Marshal(qt)
 	if err != nil {
 		return err
@@ -148,8 +157,10 @@ func Enqueue(id TaskID, data interface{}) error {
 	return client.Publish("q", string(b)).Err()
 }
 
+// process function which is called everytime a new task is queued.
 func process(msg *redis.Message) {
 	var qt QueueTask
+	// deserialize the message payload into a QueueTask and we select the right executor based on the ID.
 	if err := json.Unmarshal([]byte(msg.Payload), &qt); err != nil {
 		log.Fatal("unable to decode this Redis message", err)
 	}
@@ -167,8 +178,10 @@ func process(msg *redis.Message) {
 		}
 	}
 
+	// call the Run function and log the error if one occurs.
 	if err := exec.Run(qt); err != nil {
 		//TODO: better to log those critical errors
 		log.Println("error while executing this task", qt.ID, err)
 	}
+	fmt.Println("Call successfully made")
 }

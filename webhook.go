@@ -8,8 +8,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/dstpierre/gosaas/data"
-	"github.com/dstpierre/gosaas/model"
+	"github.com/jlb922/gosaas/data"
+	"github.com/jlb922/gosaas/model"
 )
 
 func post(url string, data interface{}, result interface{}, headers map[string]string) error {

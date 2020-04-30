@@ -14,7 +14,7 @@ You define your top level routes in your package like this:
 ```go
 package main
 
-import "github.com/dstpierre/gosaas"
+import "github.com/jlb922/gosaas"
 
 func main() {
 	routes := make(map[string]*gosaas.Route)
@@ -60,8 +60,8 @@ package main
 
 import (
 	"net/http"
-	"github.com/dstpierre/gosaas"
-	"github.com/dstpierre/gosaas/model"
+	"github.com/jlb922/gosaas"
+	"github.com/jlb922/gosaas/model"
 )
 
 func main() {
@@ -96,8 +96,8 @@ package tasks
 import (
 	"net/http"
 
-	"github.com/dstpierre/gosaas"
-	"github.com/dstpierre/gosaas/model"
+	"github.com/jlb922/gosaas"
+	"github.com/jlb922/gosaas/model"
 )
 
 type Tasks struct{}

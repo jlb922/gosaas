@@ -12,7 +12,7 @@ import (
 	"net/http/httputil"
 	"testing"
 
-	"github.com/dstpierre/gosaas/model"
+	"github.com/jlb922/gosaas/model"
 )
 
 func logger(next http.Handler) http.Handler {
@@ -138,7 +138,7 @@ func Test_Users_SignIn(t *testing.T) {
 
 	email, pw := "test@domain.com", "$2a$10$i32u9lXBMeDGTwe2vrBRde8E8QQ5UW7ndGzWa9n.M/O14/CH9HqlG"
 
-	acct, err := db.Users.SignUp(email, pw)
+	acct, err := db.Users.SignUp(email, pw, "First", "Last")
 	if err != nil {
 		t.Fatal(err)
 	}

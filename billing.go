@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/dstpierre/gosaas/data"
-	"github.com/dstpierre/gosaas/model"
-	"github.com/dstpierre/gosaas/queue"
+	"github.com/jlb922/gosaas/data"
+	"github.com/jlb922/gosaas/model"
+	"github.com/jlb922/gosaas/queue"
 	stripe "github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/card"
 	"github.com/stripe/stripe-go/customer"

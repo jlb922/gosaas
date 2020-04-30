@@ -3,7 +3,7 @@ package gosaas
 import (
 	"net/http"
 
-	"github.com/dstpierre/gosaas/model"
+	"github.com/jlb922/gosaas/model"
 )
 
 // Route represents a web handler with optional middlewares.

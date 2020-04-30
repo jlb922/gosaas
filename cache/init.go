@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/dstpierre/gosaas/queue"
 	"github.com/go-redis/redis"
+	"github.com/jlb922/gosaas/queue"
 )
 
 var rc *redis.Client

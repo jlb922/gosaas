@@ -52,6 +52,8 @@ const (
 type User struct {
 	ID           int64         `json:"id"`
 	AccountID    int64         ` json:"accountId"`
+	First        string        `json:"first"`
+	Last         string        `json:"last"`
 	Email        string        `json:"email"`
 	Password     string        ` json:"-"`
 	Token        string        ` json:"token"`

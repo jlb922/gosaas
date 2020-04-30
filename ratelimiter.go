@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/dstpierre/gosaas/cache"
+	"github.com/jlb922/gosaas/cache"
 )
 
 // RateLimiter is a middleware used to prevent too many call in short time span.

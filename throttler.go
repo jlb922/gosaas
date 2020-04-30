@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/dstpierre/gosaas/cache"
+	"github.com/jlb922/gosaas/cache"
 )
 
 // Throttler is a middleware used to throttle and apply rate limit to requests.

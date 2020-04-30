@@ -3,7 +3,7 @@ package postgres
 import (
 	"database/sql"
 
-	"github.com/dstpierre/gosaas/model"
+	"github.com/jlb922/gosaas/model"
 )
 
 type Webhooks struct {

@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/dstpierre/gosaas/cache"
-	"github.com/dstpierre/gosaas/model"
+	"github.com/jlb922/gosaas/cache"
+	"github.com/jlb922/gosaas/model"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -15,11 +15,13 @@ import (
 //
 // If the request failed with a status code >= 300, a dump of the
 // request will be saved into the cache store. You can investigate and replay
-// the request in a development environment using this tool https://github.com/dstpierre/httpreplay.
+// the request in a development environment using this tool https://github.com/jlb922/httpreplay.
 func Logger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), ContextRequestStart, time.Now())
 		ctx = context.WithValue(ctx, ContextRequestID, uuid.NewV4().String())
+		//tok, _ := uuid.NewV4()
+		//ctx = context.WithValue(ctx, ContextRequestID, tok.String())
 
 		//TODO: this causes issues
 		/*

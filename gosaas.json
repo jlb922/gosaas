@@ -1,0 +1,15 @@
+{
+    "emailFrom": "jeff@luckyowlbrewing.com",
+    "emailFromName": "Jeff Bradbury",
+    "emailProvider": "google",
+    "stripeKey": "your-stripe-key",
+    "signupTemplate": "signup.html",
+    "sendEmailValidation": true,
+    "signupSuccessRedirect": "",
+    "signupErrorRedirect": "",
+    "signinTemplate": "login.html",
+    "signinSuccessRedirect": "",
+    "signinErrorRedirect": "/users/login",
+    "forgotLoginTemplate": "forgot.html",
+    "resetLoginTemplate": "reset.html",
+}

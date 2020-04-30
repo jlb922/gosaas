@@ -1,4 +1,4 @@
-module github.com/dstpierre/gosaas
+module github.com/jlb922/gosaas
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect

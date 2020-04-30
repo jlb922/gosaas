@@ -3,11 +3,11 @@ package postgres
 import (
 	"testing"
 
-	"github.com/dstpierre/gosaas/model"
+	"github.com/jlb922/gosaas/model"
 )
 
 func createAccountAndUser(t *testing.T, users *Users, email, pass string) *model.Account {
-	acct, err := users.SignUp(email, pass)
+	acct, err := users.SignUp(email, pass, "First", "Last")
 	if err != nil {
 		t.Fatalf("error on signul: %v", err)
 	} else if len(acct.Users) != 1 {

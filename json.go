@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-// Respond return an strruct with specific status as JSON.
+// Respond return a struct with specific status as JSON.
 //
 // If data is an error it will be wrapped in a generic JSON object:
 //

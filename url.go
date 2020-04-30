@@ -15,7 +15,7 @@ import (
 //
 // 	import (
 // 		"net/http"
-// 		"github.com/dstpierre/gosaas"
+// 		"github.com/jlb922/gosaas"
 // 	)
 //
 // 	func main() {

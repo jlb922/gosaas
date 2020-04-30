@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/dstpierre/gosaas/data"
+	"github.com/jlb922/gosaas/data"
 )
 
 var db *data.DB

@@ -6,13 +6,27 @@ import (
 	"fmt"
 	"html"
 	"html/template"
+	"log"
+	"net/smtp"
 	"strings"
 
+	"github.com/jlb922/gosaas/internal/config"
 	ses "github.com/sourcegraph/go-ses"
 	"gopkg.in/gomail.v2"
 )
 
 type AmazonSES struct{}
+
+type Gmail struct{}
+
+var auth smtp.Auth
+
+type Request struct {
+	from    string
+	to      []string
+	subject string
+	body    string
+}
 
 // Send uses Amazon SES to send an HTML email, it will convert body to text automatically
 func (a AmazonSES) Send(toEmail, toName, fromEmail, fromName, subject, body, replyTo string) error {
@@ -42,6 +56,63 @@ func (a AmazonSES) Send(toEmail, toName, fromEmail, fromName, subject, body, rep
 		return errors.New("No email id returned by Amazon SES")
 	}
 
+	return nil
+}
+
+func newRequest(to []string, subject, body string) *Request {
+	return &Request{
+		to:      to,
+		subject: subject,
+		body:    body,
+	}
+}
+
+func (r *Request) parseTemplate(templateFileName string, data interface{}) error {
+	t, err := template.ParseFiles(templateFileName)
+	if err != nil {
+		return err
+	}
+	buf := new(bytes.Buffer)
+	if err = t.Execute(buf, data); err != nil {
+		return err
+	}
+	r.body = buf.String()
+	return nil
+}
+
+// Send uses GMail SMTP to send an HTML email, it will convert body to text automatically
+// body holds the link to the reset form
+// Code based off https://medium.com/@dhanushgopinath/sending-html-emails-using-templates-in-golang-9e953ca32f3d
+// TODO - use a package like https://github.com/matcornic/hermes
+func (g Gmail) Send(toEmail, toName, fromEmail, fromName, subject, body, replyTo string) error {
+	if len(toEmail) == 0 || strings.Index(toEmail, "@") == -1 {
+		return fmt.Errorf("empty To email")
+	}
+
+	GMAIL_USERNAME := config.Current.EmailLogin
+	GMAIL_PASSWORD := config.Current.EmailPassword
+	auth = smtp.PlainAuth("", GMAIL_USERNAME, GMAIL_PASSWORD, "smtp.gmail.com")
+	templateData := struct {
+		Name string
+		URL  string
+	}{
+		Name: ",",
+		URL:  body,
+	}
+	fmt.Println(templateData.URL)
+	r := newRequest([]string{toEmail}, subject, body)
+	if err := r.parseTemplate("./templates/forgot_email.html", templateData); err == nil {
+		mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
+		subject := "Subject: " + r.subject + "\n"
+		to := "To: " + toEmail + "\n"
+		msg := []byte(subject + to + mime + "\n" + r.body)
+		addr := "smtp.gmail.com:587"
+		if err := smtp.SendMail(addr, auth, fromEmail, r.to, msg); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		fmt.Println("Error Parsing Template", err)
+	}
 	return nil
 }
 

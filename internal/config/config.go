@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/dstpierre/gosaas/data"
+	"github.com/jlb922/gosaas/data"
 )
 
 // EmailProvider defines possible implementation of email providers.
@@ -18,12 +18,14 @@ const (
 
 // Configuration defines important settings used across the library.
 type Configuration struct {
+	EmailLogin    string        `json:"emailLogin"`
+	EmailPassword string        `json:"emailPassword"`
 	EmailFrom     string        `json:"emailFrom"`
 	EmailFromName string        `json:"emailFromName"`
 	EmailProvider EmailProvider `json:"emailProvider"`
 
-	StripeKey string `json:"stripeKey"`
-	Plans []data.BillingPlan `json:"plans"`
+	StripeKey string             `json:"stripeKey"`
+	Plans     []data.BillingPlan `json:"plans"`
 
 	SignUpTemplate            string `json:"signupTemplate"`
 	SignUpSendEmailValidation bool   `json:"sendEmailValidation"`
@@ -32,6 +34,9 @@ type Configuration struct {
 	SignInTemplate            string `json:"signinTemplate"`
 	SignInSuccessRedirect     string `json:"signinSuccessRedirect"`
 	SignInErrorRedirect       string `json:"signinErrorRedirect"`
+	ForgotLoginTemplate       string `json:"forgotLoginTemplate"`
+	ResetLoginTemplate        string `json:"resetLoginTemplate"`
+	PwdChgSuccessRedirect     string `json:"pwdChgSuccessRedirect"`
 }
 
 // Current holds the current configuration
@@ -40,7 +45,7 @@ var Current Configuration
 // LoadFromFile loads the ./gosaas.json file as the default library configuration
 func LoadFromFile() error {
 	b, err := ioutil.ReadFile("./gosaas.json")
-	if err != nil { 
+	if err != nil {
 		return err
 	}
 

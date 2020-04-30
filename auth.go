@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dstpierre/gosaas/cache"
-	"github.com/dstpierre/gosaas/data"
-	"github.com/dstpierre/gosaas/model"
+	"github.com/jlb922/gosaas/cache"
+	"github.com/jlb922/gosaas/data"
+	"github.com/jlb922/gosaas/model"
 )
 
 // Auth represents an authenticated user.
@@ -37,6 +37,7 @@ func Authenticator(next http.Handler) http.Handler {
 		mr := ctx.Value(ContextMinimumRole).(model.Roles)
 
 		key, pat, err := extractKeyFromRequest(r)
+
 		// if there's no authentication or an error
 		if mr > model.RolePublic {
 			if len(key) == 0 || err != nil {
@@ -47,7 +48,7 @@ func Authenticator(next http.Handler) http.Handler {
 
 		ca := &cache.Auth{}
 
-		// do we have this key on cache already
+		// do we have this key on cache already?
 		var a Auth
 		if err := ca.Exists(key, &a); err != nil {
 			log.Println("error while trying to get cache auth", err)
@@ -88,8 +89,10 @@ func Authenticator(next http.Handler) http.Handler {
 			ctx = context.WithValue(ctx, ContextAuth, a)
 		}
 
-		// we authorize the request
+		// we  authorize the request and redirect to login if insufficient
 		if a.Role < mr {
+			// TODO: User messaging about lack of role
+			fmt.Println("Insufficient User Role for this route")
 			http.Redirect(w, r, "/users/login", http.StatusSeeOther)
 			return
 		}

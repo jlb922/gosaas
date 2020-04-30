@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/dstpierre/gosaas/queue/email"
-	"github.com/dstpierre/gosaas/internal/config"
+	"github.com/jlb922/gosaas/internal/config"
+	"github.com/jlb922/gosaas/queue/email"
 )
 
 type SendEmailParameter struct {
@@ -24,11 +24,13 @@ type Emailer interface {
 }
 
 func (e *Email) Run(qt QueueTask) error {
+	// First make sure the qt.Data interface can be cast to a map[string]interface{}
 	m, ok := qt.Data.(map[string]interface{})
 	if !ok {
 		return fmt.Errorf("this data is not a proper SendEmailParameter")
 	}
 
+	// then fill the struct values
 	var p SendEmailParameter
 	if err := fillStruct(&p, m); err != nil {
 		return fmt.Errorf("error fill struct: %s", err.Error())
@@ -48,9 +50,12 @@ func (e *Email) sendEmailProd(p SendEmailParameter) error {
 	if config.Current.EmailProvider == "amazonses" {
 		emailer = &email.AmazonSES{}
 	}
+	if config.Current.EmailProvider == "google" {
+		emailer = &email.Gmail{}
+	}
 
 	if emailer == nil {
-		log.Println("cannot find email provider named: %s", config.Current.EmailProvider)		
+		log.Println("cannot find email provider named: %s", config.Current.EmailProvider)
 		return nil
 	}
 
