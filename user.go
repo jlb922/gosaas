@@ -43,7 +43,7 @@ func newUser() *Route {
 // Handler for /user routes
 func (u User) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var head string
-	fmt.Println("Path:", r.URL.Path)
+	fmt.Println("Path--->", r.URL.Path)
 	head, r.URL.Path = ShiftPath(r.URL.Path)
 
 	if head == "signup" {
@@ -70,6 +70,8 @@ func (u User) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		} else if r.Method == http.MethodPost {
 			u.resetFinish(w, r)
 		}
+	} else if head == "pride" {
+		ServePage(w, r, "pride.html", nil)
 	} else {
 		// user route not Found, send to homepage
 		fmt.Println("Page not found")

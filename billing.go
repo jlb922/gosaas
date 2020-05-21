@@ -89,6 +89,7 @@ func (b Billing) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Overview TODO: document
 func (b Billing) Overview(accountID int64) (*BillingOverview, error) {
 	// this struct will be returned should we be a paid customer or not
 	ov := &BillingOverview{}
@@ -234,6 +235,7 @@ type BillingNewCustomer struct {
 	Quantity    int
 }
 
+// Start TODO - document this
 func (b Billing) Start(bc BillingNewCustomer) error {
 	p := &stripe.CustomerParams{Email: stripe.String(bc.Email)}
 	p.SetSource(bc.StripeToken)

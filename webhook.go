@@ -143,6 +143,7 @@ func (wh *Webhook) list(w http.ResponseWriter, r *http.Request) {
 	Respond(w, r, http.StatusOK, subs)
 }
 
+// DeleteSubscription TODO Document this
 type DeleteSubscription struct {
 	Event string `json:"event"`
 	URL   string `json:"url"`
