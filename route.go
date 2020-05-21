@@ -13,6 +13,7 @@ type Route struct {
 	Logger           bool
 	EnforceRateLimit bool
 	AllowCrossOrigin bool
+	GzipCompression  bool
 
 	// authorization
 	MinimumRole model.Roles

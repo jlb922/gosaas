@@ -35,6 +35,7 @@ func newUser() *Route {
 		Logger:           true,
 		MinimumRole:      model.RolePublic,
 		WithDB:           true,
+		GzipCompression:  true,
 		Handler:          u.(http.Handler),
 	}
 }
@@ -42,7 +43,7 @@ func newUser() *Route {
 // Handler for /user routes
 func (u User) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var head string
-	fmt.Println(r.URL.Path)
+	fmt.Println("Path:", r.URL.Path)
 	head, r.URL.Path = ShiftPath(r.URL.Path)
 
 	if head == "signup" {

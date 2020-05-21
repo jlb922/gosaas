@@ -40,6 +40,7 @@ type Server struct {
 	Throttler       func(http.Handler) http.Handler
 	RateLimiter     func(http.Handler) http.Handler
 	Cors            func(http.Handler) http.Handler
+	Gzip            func(http.Handler) http.Handler
 	StaticDirectory string
 	Routes          map[string]*Route
 }
@@ -80,13 +81,13 @@ func NewServer(routes map[string]*Route) *Server {
 		routes["tools"] = newTool()
 	}
 
-
 	return &Server{
 		Logger:          Logger,
 		Authenticator:   Authenticator,
 		Throttler:       Throttler,
 		RateLimiter:     RateLimiter,
 		Cors:            Cors,
+		Gzip:            Gzip,
 		StaticDirectory: "/public/",
 		Routes:          routes,
 	}
@@ -148,6 +149,11 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// are we allowing cross-origin requests for this route
 	if next.AllowCrossOrigin {
 		next.Handler = s.Cors(next.Handler)
+	}
+
+	// are we using gzip compression on this route
+	if next.GzipCompression {
+		next.Handler = s.Gzip(next.Handler)
 	}
 
 	next.Handler.ServeHTTP(w, r.WithContext(ctx))
