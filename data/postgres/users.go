@@ -76,7 +76,7 @@ func (u *Users) Auth(accountID int64, token string, pat bool) (*model.Account, *
 	token = fmt.Sprintf("%d|%s", accountID, token)
 
 	user := &model.User{}
-	row := u.DB.QueryRow("SELECT * FROM gosaas_users WHERE account_id = $1 AND token = $2", accountID, token)
+	row := u.DB.QueryRow("SELECT id, account_id, first, last, email, password, token, role FROM gosaas_users WHERE account_id = $1 AND token = $2", accountID, token)
 	if err := u.scanUser(row, user); err != nil {
 		return nil, nil, err
 	}
