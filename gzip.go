@@ -11,6 +11,7 @@ import (
 func Gzip(next http.Handler) http.Handler {
 	fmt.Println("in gzip")
 	return gziphandler.GzipHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		next.ServeHTTP(w, r.WithContext(ctx))
+		//next.ServeHTTP(w, r.WithContext(ctx))
+		next.ServeHTTP(w, r)
 	}))
 }
